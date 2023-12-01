@@ -1,6 +1,6 @@
 package com.example.kafkaconsumer.config;
 
-import com.example.kafkaconsumer.model.MovieRequest;
+import com.example.kafkaconsumer.model.FlightRequest;
 import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
@@ -24,34 +24,12 @@ public class KafkaConfiguration {
     @Value("${BOOTSTRAP_SERVERS_CONFIG}")
     private String BOOTSTRAP_SERVERS_CONFIG;
 
-    @Value("${MOVIE_TOPIC}")
-    private String MOVIE_TOPIC;
-
-    @Value("${REVIEW_TOPIC}")
-    private String REVIEW_TOPIC;
-
-    @Value("${UPVOTE_TOPIC}")
-    private String UPVOTE_TOPIC;
+    @Value("${SPARK_TOPIC}")
+    private String SPARK_TOPIC;
 
     @Bean
-    public NewTopic topicMovie() {
-        return TopicBuilder.name(MOVIE_TOPIC)
-                .partitions(6)
-                .replicas(3)
-                .build();
-    }
-
-    @Bean
-    public NewTopic topicReview() {
-        return TopicBuilder.name(REVIEW_TOPIC)
-                .partitions(6)
-                .replicas(3)
-                .build();
-    }
-
-    @Bean
-    public NewTopic topicUpvote() {
-        return TopicBuilder.name(UPVOTE_TOPIC)
+    public NewTopic topicSpark() {
+        return TopicBuilder.name(SPARK_TOPIC)
                 .partitions(6)
                 .replicas(3)
                 .build();
@@ -69,7 +47,6 @@ public class KafkaConfiguration {
         return new DefaultKafkaConsumerFactory<>(config);
     }
 
-
     @Bean
     public ConcurrentKafkaListenerContainerFactory<String, String> kafkaListenerContainerFactory() {
         ConcurrentKafkaListenerContainerFactory<String, String> factory = new ConcurrentKafkaListenerContainerFactory();
@@ -79,7 +56,7 @@ public class KafkaConfiguration {
 
 
     @Bean
-    public ConsumerFactory<String, MovieRequest> movieConsumerFactory() {
+    public ConsumerFactory<String, FlightRequest> flightConsumerFactory() {
         Map<String, Object> config = new HashMap<>();
 
         config.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, BOOTSTRAP_SERVERS_CONFIG);
@@ -87,13 +64,13 @@ public class KafkaConfiguration {
         config.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         config.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class);
         return new DefaultKafkaConsumerFactory<>(config, new StringDeserializer(),
-                new JsonDeserializer<>(MovieRequest.class));
+                new JsonDeserializer<>(FlightRequest.class));
     }
 
     @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, MovieRequest> movieKafkaListenerFactory() {
-        ConcurrentKafkaListenerContainerFactory<String, MovieRequest> factory = new ConcurrentKafkaListenerContainerFactory<>();
-        factory.setConsumerFactory(movieConsumerFactory());
+    public ConcurrentKafkaListenerContainerFactory<String, FlightRequest> flightKafkaListenerFactory() {
+        ConcurrentKafkaListenerContainerFactory<String, FlightRequest> factory = new ConcurrentKafkaListenerContainerFactory<>();
+        factory.setConsumerFactory(flightConsumerFactory());
         return factory;
     }
 }

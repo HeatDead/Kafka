@@ -1,12 +1,10 @@
 package com.example.kafkaconsumer.listener;
 
-import com.example.kafkaconsumer.entities.MovieEntity;
-import com.example.kafkaconsumer.entities.ReviewEntity;
-import com.example.kafkaconsumer.model.MovieRequest;
-import com.example.kafkaconsumer.model.ReviewRequest;
-import com.example.kafkaconsumer.model.UpvoteRequest;
-import com.example.kafkaconsumer.repositories.MovieRepository;
-import com.example.kafkaconsumer.repositories.ReviewRepository;
+import com.example.kafkaconsumer.entities.CountrySales;
+import com.example.kafkaconsumer.entities.FlightEntity;
+import com.example.kafkaconsumer.model.FlightRequest;
+import com.example.kafkaconsumer.repositories.FlightRepository;
+import com.example.kafkaconsumer.repositories.SalesRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.NoArgsConstructor;
@@ -18,51 +16,33 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class KafkaConsumer {
-    private final MovieRepository movieRepository;
-    private final ReviewRepository reviewRepository;
+    private final FlightRepository flightRepository;
+    private final SalesRepository salesRepository;
 
-    @KafkaListener(topics = {"${MOVIE_TOPIC}"}, groupId = "group_id")
+    @KafkaListener(topics = {"${SPARK_TOPIC}"}, groupId = "group_id")
     public void consumeMovie(String message) throws JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper();
-        MovieRequest movie = objectMapper.readValue(message, MovieRequest.class);
+        FlightRequest flight = objectMapper.readValue(message, FlightRequest.class);
         System.out.println("Consumed message: " + message);
-        System.out.println(movie);
-        MovieEntity m = new MovieEntity();
-        m.setName(movie.getName());
-        m.setDescription(movie.getDescription());
-        m.setYear(movie.getYear());
-        movieRepository.save(m);
-        System.out.println(movieRepository.findAll());
-    }
+        System.out.println(flight);
+        FlightEntity fe = new FlightEntity();
+        fe.setDestination(flight.getDestination());
+        fe.setPrice(flight.getPrice());
+        fe.setDate(flight.getDate());
+        flightRepository.save(fe);
 
-    @KafkaListener(topics = {"${REVIEW_TOPIC}"}, groupId = "group_id")
-    public void consumeReview(String message) throws JsonProcessingException {
-        ObjectMapper objectMapper = new ObjectMapper();
-        ReviewRequest review = objectMapper.readValue(message, ReviewRequest.class);
-        System.out.println("Consumed message: " + message);
+        CountrySales s = salesRepository.findByDestination(flight.getDestination());
+        if(s == null) {
+            s = new CountrySales();
+            s.setDestination(flight.getDestination());
+            s.setTotal_price(fe.getPrice());
+            s.setCount(1);
+        }else {
+            s.setTotal_price(s.getTotal_price() + fe.getPrice());
+            s.setCount(s.getCount() + 1);
+        }
 
-        MovieEntity me = movieRepository.findById((long) review.getMovieId()).get();
-        if(me == null) throw new IllegalArgumentException("Invalid ID");
-
-        ReviewEntity r = new ReviewEntity();
-        r.setName(review.getName());
-        r.setText(review.getText());
-        r.setRating(review.getRating());
-        r.setUpvotes(0);
-        r.setMovie(me);
-        reviewRepository.save(r);
-    }
-
-    @KafkaListener(topics = {"${UPVOTE_TOPIC}"}, groupId = "group_id")
-    public void consumeUpvote(String message) throws JsonProcessingException {
-        ObjectMapper objectMapper = new ObjectMapper();
-        UpvoteRequest upvote = objectMapper.readValue(message, UpvoteRequest.class);
-        System.out.println("Consumed message: " + message);
-
-        ReviewEntity re = reviewRepository.findById((long) upvote.getReviewId()).get();
-        if(re == null) throw new IllegalArgumentException("Invalid ID");
-
-        re.setUpvotes(re.getUpvotes() + upvote.getUpvotesNum());
-        reviewRepository.save(re);
+        salesRepository.save(s);
+        //System.out.println(flight.findAll());
     }
 }

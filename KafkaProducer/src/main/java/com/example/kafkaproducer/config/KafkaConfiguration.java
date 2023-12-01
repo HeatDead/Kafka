@@ -1,8 +1,6 @@
 package com.example.kafkaproducer.config;
 
-import com.example.kafkaproducer.model.MovieRequest;
-import com.example.kafkaproducer.model.ReviewRequest;
-import com.example.kafkaproducer.model.UpvoteRequest;
+import com.example.kafkaproducer.model.FlightRequest;
 import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
@@ -24,41 +22,19 @@ public class KafkaConfiguration {
     @Value("${BOOTSTRAP_SERVERS_CONFIG}")
     private String BOOTSTRAP_SERVERS_CONFIG;
 
-    @Value("${MOVIE_TOPIC}")
-    private String MOVIE_TOPIC;
-
-    @Value("${REVIEW_TOPIC}")
-    private String REVIEW_TOPIC;
-
-    @Value("${UPVOTE_TOPIC}")
-    private String UPVOTE_TOPIC;
+    @Value("${SPARK_TOPIC}")
+    private String SPARK_TOPIC;
 
     @Bean
-    public NewTopic topicMovie() {
-        return TopicBuilder.name(MOVIE_TOPIC)
+    public NewTopic topicSpark() {
+        return TopicBuilder.name(SPARK_TOPIC)
                 .partitions(6)
                 .replicas(3)
                 .build();
     }
 
     @Bean
-    public NewTopic topicReview() {
-        return TopicBuilder.name(REVIEW_TOPIC)
-                .partitions(6)
-                .replicas(3)
-                .build();
-    }
-
-    @Bean
-    public NewTopic topicUpvote() {
-        return TopicBuilder.name(UPVOTE_TOPIC)
-                .partitions(6)
-                .replicas(3)
-                .build();
-    }
-
-    @Bean
-    public ProducerFactory<String, MovieRequest> producerMovieFactory() {
+    public ProducerFactory<String, FlightRequest> producerFlightFactory() {
         Map<String, Object> config = new HashMap<>();
 
         config.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, BOOTSTRAP_SERVERS_CONFIG);
@@ -68,44 +44,9 @@ public class KafkaConfiguration {
         return new DefaultKafkaProducerFactory<>(config);
     }
 
-
     @Bean
-    public KafkaTemplate<String, MovieRequest> kafkaMovieTemplate() {
-        return new KafkaTemplate<>(producerMovieFactory());
-    }
-
-    @Bean
-    public ProducerFactory<String, ReviewRequest> producerReviewFactory() {
-        Map<String, Object> config = new HashMap<>();
-
-        config.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, BOOTSTRAP_SERVERS_CONFIG);
-        config.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
-        config.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class);
-
-        return new DefaultKafkaProducerFactory<>(config);
-    }
-
-
-    @Bean
-    public KafkaTemplate<String, ReviewRequest> kafkaReviewTemplate() {
-        return new KafkaTemplate<>(producerReviewFactory());
-    }
-
-    @Bean
-    public ProducerFactory<String, UpvoteRequest> producerUpvoteFactory() {
-        Map<String, Object> config = new HashMap<>();
-
-        config.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, BOOTSTRAP_SERVERS_CONFIG);
-        config.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
-        config.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class);
-
-        return new DefaultKafkaProducerFactory<>(config);
-    }
-
-
-    @Bean
-    public KafkaTemplate<String, UpvoteRequest> kafkaUpvoteTemplate() {
-        return new KafkaTemplate<>(producerUpvoteFactory());
+    public KafkaTemplate<String, FlightRequest> kafkaFlightTemplate() {
+        return new KafkaTemplate<>(producerFlightFactory());
     }
 
     @Bean

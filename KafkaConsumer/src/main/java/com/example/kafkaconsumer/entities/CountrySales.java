@@ -9,17 +9,13 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "reviews")
-public class ReviewEntity {
+@Table(name = "sales")
+public class CountrySales {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+    Long id;
 
-    private String name;
-    private int rating;
-    private String text;
-    private int upvotes;
-
-    @ManyToOne
-    private MovieEntity movie;
+    String destination;
+    Long total_price;
+    int count;
 }

@@ -5,17 +5,20 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Date;
+import java.util.UUID;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "movies")
-public class MovieEntity {
+@Table(name = "flights")
+public class FlightEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+    Long id;
 
-    private String name;
-    private String description;
-    private int year;
+    String destination;
+    Long price;
+    Date date;
 }

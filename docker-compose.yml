@@ -34,9 +34,7 @@ services:
       - .env
     environment:
       - BOOTSTRAP_SERVERS_CONFIG=${BOOTSTRAP_SERVERS_CONFIG}
-      - MOVIE_TOPIC=${MOVIE_TOPIC}
-      - REVIEW_TOPIC=${REVIEW_TOPIC}
-      - UPVOTE_TOPIC=${UPVOTE_TOPIC}
+      - SPARK_TOPIC=${SPARK_TOPIC}
       - URL_DB=${URL_DB}
       - USERNAME_DB=${USERNAME_DB}
       - PASSWORD_DB=${PASSWORD_DB}
@@ -52,9 +50,7 @@ services:
       - .env
     environment:
       - BOOTSTRAP_SERVERS_CONFIG=${BOOTSTRAP_SERVERS_CONFIG}
-      - MOVIE_TOPIC=${MOVIE_TOPIC}
-      - REVIEW_TOPIC=${REVIEW_TOPIC}
-      - UPVOTE_TOPIC=${UPVOTE_TOPIC}
+      - SPARK_TOPIC=${SPARK_TOPIC}
       - CONSUMER_ADR=${CONSUMER_ADR}
   db:
     image: 'postgres:13.1-alpine'
@@ -66,5 +62,7 @@ services:
       - POSTGRES_USER=${USERNAME_DB}
       - POSTGRES_PASSWORD=${PASSWORD_DB}
       - POSTGRES_DB=${POSTGRES_DB}
+    ports:
+      - "5432:5432"
     expose:
-      - "5432"
+      - "5432:5432"
